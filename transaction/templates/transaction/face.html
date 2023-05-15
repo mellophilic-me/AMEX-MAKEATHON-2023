@@ -1,0 +1,157 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Document</title>
+    <style>
+      * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: all 0.25s ease;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Arial', sans-serif;
+            background: #282a36;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+            width: 900px;
+            max-width: 1200px;
+            padding: 20px;
+            background: #44475a;
+            border-radius: 10px;
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+            color: #f8f8f2;
+        }
+        h2 {
+            text-align: center;
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #50fa7b;
+        }
+        .box {
+            width: 45%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #video{
+            width: 100%;
+            height: 100%;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            max-width: 500px;
+            box-shadow: 0px 5px 15px rgba(252, 248, 248, 0.1);
+        }
+        #photo {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            max-width: 500px;
+            box-shadow: 0px 5px 15px rgba(252, 248, 248, 0.1);
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .controls button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background: #ff79c6;
+            color: #282a36;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .controls button:hover {
+            background: #bd50a3;
+        }
+        .controls button:disabled {
+            background: #ddd;
+        }
+        #results{
+            width: 90%;
+            height: 100%;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            max-width: 480px;
+            box-shadow: 0px 5px 15px rgba(252, 248, 248, 0.1);
+        }   
+    </style>
+</head>
+<body>
+    <form action="" method="post">
+        {% csrf_token %}
+    <div class="container">
+       <div class="box">
+        <h2>Live Camera Feed</h2>
+        <div id="video"></div>
+            <input type="hidden" name="captured_image_data" id="image">
+        <br>
+        <input type="button" value="Take Snap" onclick="take_pic()">
+       </div>
+       <div class="box">
+        <h2>Captured Image</h2>
+        {% comment %} <div id="results"> {% endcomment %}
+        <div id='results'></div>
+        <br>
+        <button type="submit">Save Picture</button>
+       </div>
+    </form>
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    </div>
+</body>
+<script type="text/javascript" src="{% static 'transaction/webcamjs/webcam.min.js' %}"></script>
+<script language="JavaScript">
+    Webcam.set({
+        width: 350,
+        height: 270,
+        image_format:'jpeg',
+        jpeg_quality:90
+    });
+    Webcam.attach( '#video' );
+
+    function take_pic(){
+        Webcam.snap(function(data_uri){
+            document.getElementById('results').innerHTML = '<img src=" '+data_uri+ '"/>';
+            console.log(data_uri)
+            str=data_uri.split(",")[1]
+            document.getElementById('image').value=str;
+            console.log(str)
+        });
+    }
+    var time = new Date().getTime();
+     $(document.body).bind("mousemove keypress", function(e) {
+         time = new Date().getTime();
+     });
+
+     function refresh() {
+         if(new Date().getTime() - time >= 60000) 
+             window.location.reload(true);
+         else 
+             setTimeout(refresh, 10000);
+     }
+
+     setTimeout(refresh, 10000);
+</script>
+</html>
